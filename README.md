@@ -7,7 +7,7 @@ A collection of Python scripts demonstrating how to work with different APIs to 
 ### 1. Gemini API - AI Text Generation
 **File:** `API_Workshop(GEMINI).py`
 
-Uses Google's Gemini AI to generate explanations. The example asks Gemini to explain PID controllers in simple terms.
+Uses Google's Gemini AI to generate explanations. The you can type in your prompt to Gemini via CLI.
 
 **Required Secret:**
 - `API_KEY` - Your Google AI API key from https://aistudio.google.com/apikey
