@@ -2,7 +2,7 @@
 
 A collection of Python scripts demonstrating how to work with different APIs to make an AI Travel Assistant using simple requests.
 
-## Available APIs
+## Available APIs (Under Single_API codes)
 
 ### 1. Gemini API - AI Text Generation
 **File:** `API_Workshop(GEMINI).py`
