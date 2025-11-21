@@ -1,0 +1,10 @@
+gemini docs : https://ai.google.dev/api
+gemini keys : https://aistudio.google.com/app/u/2/api-keys
+
+open weather docs : https://openweathermap.org/api/one-call-3
+open weather keys : https://home.openweathermap.org/api_keys
+
+rest countries : https://restcountries.com/
+
+json editor : https://jsoneditoronline.org/
+
