@@ -1,6 +1,6 @@
 # AI Travel Assistant
 
-A collection of Python scripts demonstrating how to work with different APIs using simple requests.
+A collection of Python scripts demonstrating how to work with different APIs to make an AI Travel Assistant using simple requests.
 
 ## Available APIs
 
