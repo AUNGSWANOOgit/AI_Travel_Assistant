@@ -1,65 +1,97 @@
 # AI Travel Assistant
 
-A collection of Python scripts demonstrating how to work with different APIs to make an AI Travel Assistant using simple requests.
+A Python CLI application that helps users plan personalized trips using multiple APIs. It fetches country and city information, 5-day weather forecasts, currency exchange rates, and generates detailed itineraries via Google's Gemini AI. Users input their destination, travel dates, budget, and requirements to receive a day-by-day plan.
 
-## Available APIs (Under Single_API codes)
+---
 
-### 1. Gemini API - AI Text Generation
-**File:** `API_Workshop(GEMINI).py`
+## Features
 
-Uses Google's Gemini AI to generate explanations. The you can type in your prompt to Gemini via CLI.
+* **Country & City Info:** Fetch country details (capital, population, currency, languages) and major cities using GitHub JSON datasets and CountriesNow API.
+* **Weather Forecast:** 5-day forecasts for any city using OpenWeather API.
+* **Currency Conversion:** Convert between home and destination currencies via Frankfurter API.
+* **AI Trip Planner:** Generate detailed day-by-day itineraries tailored to budget and preferences using Gemini API.
+* **CLI Friendly:** Step-by-step prompts for an easy user experience.
 
-**Required Secret:**
-- `API_KEY` - Your Google AI API key from https://aistudio.google.com/apikey
+---
 
-### 2. OpenWeather API - Weather Forecasts
-**File:** `API_Workshop(OpenWeather).py`
+## Files Overview
 
-Fetches weather forecasts for any city for up to 5 days.
+| File                              | Description                                         |
+| --------------------------------- | --------------------------------------------------- |
+| `main.py`                         | Main CLI program integrating all features and APIs. |
+| `currency_converter.py`           | Standalone Frankfurter API currency conversion.     |
+| `API_Workshop(GEMINI).py`         | Gemini AI text generation example.                  |
+| `API_Workshop(OpenWeather).py`    | Weather forecasts example.                          |
+| `API_Workshop(REST_Countries).py` | Country information example.                        |
+| `run_apis.py`                     | Menu-based launcher for all API scripts.            |
 
-**Required Secret:**
-- `WEATHER_API_KEY` - Your OpenWeather API key from https://openweathermap.org/api
+---
 
-**How it works:**
-- Prompts you for a city name
-- Asks how many days of forecast you want (1-5)
-- Shows temperature and weather description for each day
+## Setup
 
-### 3. REST Countries API - Country Information
-**File:** `API_Workshop(REST_Countries).py`
+1. Install Python 3.11+ and `requests` library:
 
-Gets detailed information about any country in the world.
+```bash
+pip install requests
+```
 
-**Required Secret:**
-- `REST_API_URL` - Set to `https://restcountries.com/v3.1`
+2. Obtain API keys:
 
-**How it works:**
-- Prompts you for a country name
-- Shows capital, region, population, currency, and languages
+   * **Gemini AI:** `API_KEY` from [Google AI Studio](https://aistudio.google.com/apikey)
+   * **OpenWeather:** `WEATHER_API_KEY` from [OpenWeather](https://openweathermap.org/api)
+   * **REST Countries:** No key required
+   * **Frankfurter:** No key required
+3. Set environment variables or Replit Secrets:
+
+```bash
+export API_KEY="YOUR_GEMINI_KEY"
+export WEATHER_API_KEY="YOUR_OPENWEATHER_KEY"
+```
+
+---
 
 ## How to Run
 
-### Run Individual Files
-In the Shell, run any file directly:
+### Run Main Travel Assistant
+
+```bash
+python main.py
+```
+
+Follow CLI prompts to:
+
+1. Enter country and select city
+2. Input home currency
+3. Enter trip start date, duration, budget, and special requirements
+4. Receive a personalized AI-generated itinerary
+
+### Run Individual API Scripts
+
 ```bash
 python "API_Workshop(GEMINI).py"
 python "API_Workshop(OpenWeather).py"
 python "API_Workshop(REST_Countries).py"
+python "currency_converter.py"
 ```
 
-### Run with Menu
-Use the menu system to choose which API to run:
+### Run Menu
+
 ```bash
 python run_apis.py
 ```
 
-## Setup
-
-1. Get your API keys from the respective services
-2. Add them to Replit Secrets (click the lock icon 🔒 in the Tools panel)
-3. Run any of the Python files
+---
 
 ## Requirements
 
-- Python 3.11+
-- requests library (already installed)
+* Python 3.11+
+* `requests` library
+
+---
+
+## Notes
+
+* Ensure your API keys are set correctly; missing keys will prevent functionality.
+* This project demonstrates full integration of multiple APIs into a single AI-assisted CLI application.
+* All scripts are independently implemented and maintained by the author.
+
