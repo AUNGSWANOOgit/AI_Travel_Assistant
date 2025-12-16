@@ -32,49 +32,57 @@ def get_cities_for_country(country_name):
         return []
 
 
-# --- 2. FUNCTION: Get Country Metadata (RestCountries API) ---
+# --- 2. FUNCTION: Get Country Metadata (GitHub Raw JSON, No API Key) ---
 def get_and_display_country_info(country_name):
-    """Fetches currency, language, and capital info."""
-    endpoint = f"{REST_API_URL}/name/{country_name}"
+    """Fetch country info from a free GitHub JSON dataset (no API key)."""
+
+    url = "https://raw.githubusercontent.com/mledoze/countries/master/countries.json"
+
     try:
-        response = requests.get(endpoint)
-        if response.status_code == 404:
+        response = requests.get(url)
+        data = response.json()
+
+        # Find the matching country (case-insensitive)
+        match = None
+        for c in data:
+            if c["name"]["common"].lower() == country_name.lower():
+                match = c
+                break
+
+        if not match:
             print(f"❌ Country '{country_name}' not found.")
             return "Country data not found.", None
 
-        data = response.json()
-        if not isinstance(data, list) or len(data) == 0:
-            return "Country data not found.", None
-
-        data = data[0]
-
         # Extract details
-        name = data['name']['common']
-        official_name = data['name']['official']
-        capital = data.get('capital', ["N/A"])[0]
-        population = data.get('population', 0)
-        region = data.get('region', 'N/A')
-        subregion = data.get('subregion', 'N/A')
+        name = match["name"]["common"]
+        official_name = match["name"]["official"]
+        capital = match.get("capital", ["N/A"])[0]
+        population = match.get("population", 0)
+        region = match.get("region", "N/A")
+        subregion = match.get("subregion", "N/A")
 
-        # Get Currency Code & Name
-        currency_code = "N/A"
-        currency_str = "N/A"
-        if 'currencies' in data and isinstance(data['currencies'], dict):
-            currency_code = list(data['currencies'].keys())[0]
-            currency_name = data['currencies'][currency_code].get(
-                'name', 'Unknown')
-            currency_str = f"{currency_name} ({currency_code})"
+        # Currencies
+        currencies = match.get("currencies", {})
+        if currencies:
+            cur_code = list(currencies.keys())[0]
+            cur_name = currencies[cur_code]["name"]
+            currency_str = f"{cur_name} ({cur_code})"
+        else:
+            cur_code = "N/A"
+            currency_str = "N/A"
 
-        # Get Language
-        languages = ", ".join(data.get('languages', {}).values())
+        # Languages
+        languages = ", ".join(match.get("languages", {}).values())
 
-        # Formatted string for the AI
-        ai_summary = (f"Official Name: {name}, Capital: {capital}, "
-                      f"Region: {region} ({subregion}), "
-                      f"Currency: {currency_str}, Languages: {languages}, "
-                      f"Population: {population:,}")
+        # AI summary string
+        ai_summary = (
+            f"Official Name: {name}, Capital: {capital}, "
+            f"Region: {region} ({subregion}), "
+            f"Currency: {currency_str}, Languages: {languages}, "
+            f"Population: {population:,}"
+        )
 
-        # Display to USER
+        # Print to CLI
         print(f"\n--- 🌏 REPORT FOR: {name.upper()} ---")
         print(f"Official Name: {official_name}")
         print(f"Capital:       {capital}")
@@ -84,7 +92,7 @@ def get_and_display_country_info(country_name):
         print(f"Languages:     {languages}")
         print("--------------------------------")
 
-        return ai_summary, currency_code
+        return ai_summary, cur_code
 
     except Exception as e:
         print(f"Error fetching country info: {e}")
@@ -123,7 +131,7 @@ def get_and_display_weather(city):
                 temp = main.get('temp', "N/A")
                 desc = weather.get('description', "N/A")
 
-                # Format for User & AI
+                # Format
                 line = f"• {date_part}: {temp}°C, {desc}"
                 print(line)
                 report.append(line)
@@ -146,8 +154,7 @@ def get_exchange_rate(home_currency, target_currency):
     if home_currency == target_currency:
         return f"1 {home_currency} = 1 {target_currency} (Same Currency)"
 
-    print(
-        f"\n💰 Checking Exchange Rate: {home_currency} -> {target_currency}...")
+    print(f"\n💰 Checking Exchange Rate: {home_currency} -> {target_currency}...")
     url = f"https://api.frankfurter.dev/v1/latest?base={home_currency}&symbols={target_currency}"
 
     try:
@@ -167,17 +174,18 @@ def get_exchange_rate(home_currency, target_currency):
 
 
 # --- 5. FUNCTION: The Gemini Planner ---
-def plan_trip(city, country, home_currency, budget, days, start_date,
-              requirements):
+def plan_trip(city, country, home_currency, budget, days, start_date, requirements):
 
-    # A. Fetch Real Data
-    #country_info_text, target_currency_code = get_and_display_country_info(country)
+    # FIXED: Get country info FIRST
+    country_info_text, target_currency_code = get_and_display_country_info(country)
+
+    # Weather and exchange rate
     weather_data = get_and_display_weather(city)
     exchange_rate_info = get_exchange_rate(home_currency, target_currency_code)
 
     print("\n🤖 AI is thinking... generating your itinerary...")
 
-    # B. Construct the "Smart" Prompt
+    # Construct AI prompt
     prompt = f"""
     Act as an expert travel agent. Plan a detailed trip to {city}, {country}.
 
@@ -190,7 +198,7 @@ def plan_trip(city, country, home_currency, budget, days, start_date,
     --- REAL-TIME CONTEXT ---
     1. COUNTRY INFO: {country_info_text}
     2. EXCHANGE RATE: {exchange_rate_info}
-    3. CURRENT WEATHER FORECAST: 
+    3. CURRENT WEATHER FORECAST:
     {weather_data}
 
     --- FORMATTING INSTRUCTIONS (STRICT) ---
@@ -207,7 +215,7 @@ def plan_trip(city, country, home_currency, budget, days, start_date,
     - If rain is predicted, suggest indoor activities.
     """
 
-    # C. Call Gemini API
+    # Gemini API call
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
     headers = {
         "Content-Type": "application/json",
@@ -250,32 +258,25 @@ if __name__ == "__main__":
         user_city = ""
 
         if available_cities:
-            print(
-                f"\n--- Found {len(available_cities)} cities in {user_country} ---"
-            )
-            # Show top 10 cities as suggestions
+            print(f"\n--- Found {len(available_cities)} cities in {user_country} ---")
             for i, city in enumerate(available_cities[:10], 1):
                 print(f"{i}. {city}")
             if len(available_cities) > 10:
                 print(f"... and {len(available_cities)-10} more.")
 
             print("------------------------------------------------")
-            choice = input(
-                "Type a city name from above OR enter your own: ").strip()
+            choice = input("Type a city name from above OR enter your own: ").strip()
 
-            # Smart check: if they typed a number (like '1'), pick that city
             if choice.isdigit() and 1 <= int(choice) <= 10:
                 user_city = available_cities[int(choice) - 1]
                 print(f"✅ Selected: {user_city}")
             else:
                 user_city = choice
         else:
-            # Fallback if API didn't find cities
             user_city = input(f"Enter City in {user_country}: ").strip()
 
         # 3. Collect Home Currency
-        user_home_currency = input(
-            "\nYour Home Currency (e.g., USD, EUR): ").upper()
+        user_home_currency = input("\nYour Home Currency (e.g., USD, EUR): ").upper()
 
         # 4. Collect Trip Specifics
         user_start_date = input("Start Date (e.g., 2024-12-25): ")
